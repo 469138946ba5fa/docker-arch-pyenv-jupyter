@@ -58,9 +58,12 @@ clean_history() {
 # 清理资源文件
 clean_src() {
   log_info "清理资源文件..."
-  # 清理当前用户的历史
+  # 清理多架构预编译包
   rm -frv /usr/local/src/llvm-clang-cling-build-*.tar.gz 2>/dev/null || true
+  # 清理依赖源码压缩包
   rm -frv /usr/local/src/llvm-project.tar.gz 2>/dev/null || true
+  # 清理 .gitkeep 占位文件
+  rm -frv /usr/local/src/.gitkeep 2>/dev/null || true
 }
 
 # 执行清理操作
