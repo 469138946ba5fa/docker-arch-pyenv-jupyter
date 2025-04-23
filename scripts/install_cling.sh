@@ -81,10 +81,10 @@ clone_sources() {
   case "${CLING_BUILD_MODE}" in
     online)
       log_info "[online] 克隆 LLVM 项目..."
-      if [[ ! -d "${SRC_DIR}/llvm" ]]; then
-        retry git clone --depth 1 "${LLVM_REPO}" "${SRC_DIR}/llvm"
-        # 把当前目录压入一个目录栈中，记录暂存点，并进入 "${SRC_DIR}/llvm" 目录
-        pushd "${SRC_DIR}/llvm" > /dev/null
+      if [[ ! -d "${SRC_DIR}/llvm-project" ]]; then
+        retry git clone --depth 1 "${LLVM_REPO}" "${SRC_DIR}/llvm-project"
+        # 把当前目录压入一个目录栈中，记录暂存点，并进入 "${SRC_DIR}/llvm-project" 目录
+        pushd "${SRC_DIR}/llvm-project" > /dev/null
         retry git fetch --unshallow
         retry git checkout "${CLING_BRANCH}"
         # 返回暂存点目录
@@ -148,8 +148,6 @@ build_cling() {
   # 修复参考 https://github.com/root-project/cling/issues/536
   mkdir -pv ${BUILD_DIR}/lib
   ln -fsv ${INSTALL_PREFIX}/lib/clang ${BUILD_DIR}/lib/clang
-  # 测试打印，如果输出 Hello World! 就算成功
-  /usr/local/bin/cling '#include <stdio.h>' 'printf("C++ Cling Hello World!\n");'
 }
 
 # === STEP 3: 注册 Jupyter 内核 ===
@@ -199,5 +197,7 @@ main() {
 main "$@"
 
 log_info "cling & cling Jupter kernel setup is complete."
-cling --version
 jupyter-kernelspec list
+cling --version
+# 测试打印，如果输出 Hello World! 就算成功
+/usr/local/bin/cling '#include <stdio.h>' 'printf("C++ Cling Hello World!\n");'
