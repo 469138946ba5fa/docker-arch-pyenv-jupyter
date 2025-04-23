@@ -1063,7 +1063,7 @@ tar zcvf ${SRC_DIR}/llvm-clang-cling-build-$(uname -m).tar.gz build
 docker cp test-arm64:/tmp/llvm-clang-cling-build-$(docker exec test-arm64 uname -m).tar.gz /docker-workspace/docker-arch-pyenv-jupyter/sources/
 ```
   - **然后在新的终端页面终止容器，容器会自动删除**
-  - **至此预编译包 llvm-clang-cling-build-<arch>.tar.gz 获取完成，再配合官方 llvm-project 源码，即可在容器中完成快速安装，节省大量时间**
+  - **至此预编译包 llvm-clang-cling-build-\<arch\>.tar.gz 获取完成，再配合官方 llvm-project 源码，即可在容器中完成快速安装，节省大量时间**
 ```shell
 # 关闭arm64架构容器
 docker stop test-arm64
