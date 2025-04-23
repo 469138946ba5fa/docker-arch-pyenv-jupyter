@@ -17,7 +17,7 @@ pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器
 
 项目工作目录如下：
 
-```
+```plaintext
 .
 ├── .env.amd64                 # Docker Compose 配置文件所需 amd64 环境，需要更名为 .env 使用
 ├── .env.arm64                 # Docker Compose 配置文件所需 arm64 环境，需要更名为 .env 使用
@@ -25,15 +25,19 @@ pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器
 ├── Dockerfile                 # 构建 Docker 镜像的说明文件
 ├── LICENSE                    # 许可协议文件
 ├── README.md                  # 本项目说明文档
-└── scripts                    # 脚本目录，包含各项自动化安装和启动脚本
-    ├── clean.sh               # 清理构建产物或停止容器的脚本
-    ├── common.sh              # 通用日志、函数等辅助脚本
-    ├── init_system.sh         # 系统初始化脚本（例如配置 locale、环境变量等）
-    ├── install_jbang.sh       # 安装 jbang（用于 Java 工具链）的脚本
-    ├── install_jdk.sh         # 安装 JDK 环境的脚本
-    ├── install_jupyter.sh     # 安装并配置 Jupyter（包括内核、密码、默认终端/主题）的脚本
-    ├── install_pyenv.sh   # 安装 pyenv 的脚本，用于创建 conda 环境
-    └── start_jupyter.sh       # 启动 Jupyter 服务的脚本
+├── images                     # 图像目录，包含 README.md 说明所需图像
+├── scripts                    # 脚本目录，包含各项自动化安装和启动脚本
+│   ├── clean.sh               # 清理构建产物或停止容器的脚本
+│   ├── common.sh              # 通用日志、函数等辅助脚本
+│   ├── init_system.sh         # 系统初始化脚本（例如配置 locale、环境变量等）
+│   ├── install_cling.sh       # 编译安装 cling 内核的脚本，用于创建 cpp 支持环境
+│   ├── install_jbang.sh       # 安装 jbang（用于 Java 工具链）的脚本
+│   ├── install_jdk.sh         # 安装 JDK 环境的脚本
+│   ├── install_jupyter.sh     # 安装并配置 Jupyter（包括内核、密码、默认终端/主题）的脚本
+│   ├── install_pyenv.sh       # 安装 pyenv 的脚本，用于创建 python 环境
+│   └── start_jupyter.sh       # 启动 Jupyter 服务的脚本
+└── sources                    # 资源目录，包含预构建包和编译所需源码离线压缩包
+    └── .gitkeep               # 仅作为一个占位文件，帮助 Git 跟踪空目录的存在
 ```
 
 ## 特点
