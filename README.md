@@ -1076,7 +1076,7 @@ docker stop test-amd64
   >
   > 也感谢[cmake](https://cmake.org/)、[ninja](https://ninja-build.org/)和[clang](https://clang.llvm.org/get_started.html)编译三剑客加速并增量编译了cling的工作，让我省了不少测试的时间
   >
-  > 那些糟糕的烂人成了我痛苦回忆的一部分，一直让我痛苦，很痛苦，我无法原谅那些人，我一辈子也原谅不了，也不知道要到什么时候才能解脱 =_= 😮‍💨
+  > 关于过去，我一直没能释怀，那些糟糕的烂人成了我痛苦回忆的一部分，一直让我痛苦，很痛苦，我无法原谅那些人，我一辈子也原谅不了，也不知道要到什么时候才能解脱 =_= 😮‍💨
 
 ## 许可证
 本项目采用 [MIT License](LICENSE) 许可。
