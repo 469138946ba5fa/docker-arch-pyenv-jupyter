@@ -27,6 +27,7 @@ pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器
 ├── README.md                  # 本项目说明文档
 ├── images                     # 图像目录，包含 README.md 说明所需图像
 ├── scripts                    # 脚本目录，包含各项自动化安装和启动脚本
+│   ├── analyze_size.sh        # 日志记录点，虽跳出三界外不在五行中，但却在道之内，为精简优化镜像提供参考
 │   ├── clean.sh               # 清理构建产物或停止容器的脚本
 │   ├── common.sh              # 通用日志、函数等辅助脚本
 │   ├── init_system.sh         # 系统初始化脚本（例如配置 locale、环境变量等）
@@ -560,7 +561,7 @@ docker-buildx build --platform linux/arm64/v8 \
   --label "org.opencontainers.image.title=Pyenv Jupyter" \
   --label "org.opencontainers.image.version=1.0.0" \
   --label "org.opencontainers.image.authors=469138946ba5fa <af5ab649831964@gmail.com>" \
-  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter" \
+  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter/packages" \
   --label "org.opencontainers.image.licenses=MIT" \
   --output type=image,name=${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest,compression=zstd,compression-level=22,force-compression=true,oci-mediatypes=false \
   --tag ${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest \
@@ -586,7 +587,7 @@ docker buildx build \
   --label "org.opencontainers.image.title=Pyenv Jupyter" \
   --label "org.opencontainers.image.version=1.0.0" \
   --label "org.opencontainers.image.authors=469138946ba5fa <af5ab649831964@gmail.com>" \
-  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter" \
+  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter/packages" \
   --label "org.opencontainers.image.licenses=MIT" \
   --cache-from type=local,src=${BUILDX_CACHE} \
   --cache-to type=local,dest=${BUILDX_CACHE}-new,mode=max \
@@ -602,7 +603,7 @@ docker buildx build \
   --label "org.opencontainers.image.title=Pyenv Jupyter" \
   --label "org.opencontainers.image.version=1.0.0" \
   --label "org.opencontainers.image.authors=469138946ba5fa <af5ab649831964@gmail.com>" \
-  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter" \
+  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter/packages" \
   --label "org.opencontainers.image.licenses=MIT" \
   --cache-from type=local,src=${BUILDX_CACHE} \
   --cache-to type=local,dest=${BUILDX_CACHE}-new,mode=max \
@@ -618,7 +619,7 @@ docker buildx build \
   --label "org.opencontainers.image.title=Pyenv Jupyter" \
   --label "org.opencontainers.image.version=1.0.0" \
   --label "org.opencontainers.image.authors=469138946ba5fa <af5ab649831964@gmail.com>" \
-  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter" \
+  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter/packages" \
   --label "org.opencontainers.image.licenses=MIT" \
   --cache-from type=local,src=${BUILDX_CACHE} \
   --cache-to type=local,dest=${BUILDX_CACHE}-new,mode=max \
@@ -650,14 +651,15 @@ mkdir -pv  ${BUILDX_CACHE}-new
 ## 清理 buildx 构建缓存。以及清理构建新镜像所产生的 <none> 标签老镜像
 docker builder prune -af
 docker rmi $(docker images -qaf dangling=true)
-#docker image prune -a
-## 清理未使用的镜像
-#docker image prune -a
-## 清理所有不需要的数据: 如果想要彻底清理所有未使用的镜像、容器、网络和卷，可以使用
-#docker system prune --all --volumes
 
-## 清理所有未使用的镜像、容器、网络、构建缓存和卷。
-#docker system prune --volumes
+## 清理未使用的镜像
+#docker image prune -af
+## 清理不使用的网络
+#docker network prune -f
+## 清理不使用的卷
+#docker volume prune -af
+## 清理所有不需要的数据: 如果想要彻底清理所有未使用的镜像、容器、网络和卷，可以使用
+#docker system prune --all --volumes -af
 
 # buildx remove other node
 ## 清理 buildx 不使用的节点，你也可以留着
@@ -1071,6 +1073,185 @@ docker stop test-arm64
 docker stop test-amd64
 ```
 
+## 关于 analyze_size.sh 日志记录点
+虽跳出三界外不在五行中，但却在道之内，为精简优化镜像提供参考
+
+- **可以将脚本插入在 Dockerfile RUN 的各处位置**
+- **比如本项目需要检查安装前、后与清理后镜像大小对比变化记录，需要提前插入日志记录**
+- **安装前 `analyze_size.sh before-install` **
+- **安装后 `analyze_size.sh after-install` **
+- **清理后 `analyze_size.sh after-clean` **
+```plaintext
+RUN cd /usr/local/bin/ && \
+    chmod -v a+x *.sh && \
+    analyze_size.sh before-install && \
+    init_system.sh && \
+    install_pyenv.sh && \
+    install_jupyter.sh && \
+    install_cling.sh && \
+    install_jbang.sh && \
+    install_jdk.sh && \
+    analyze_size.sh after-install && \
+    clean.sh && \
+    rm -fv init_system.sh install_pyenv.sh install_jupyter.sh install_cling.sh install_jbang.sh install_jdk.sh clean.sh && \
+    analyze_size.sh after-clean
+```
+
+- **analyze_size.sh 检查安装前、后与清理后的镜像大小记录变化，构建镜像后进入容器可以执行如下命令获取方寸之间大小之变化**
+```bash
+# 安装前后对比大小变化
+analyze_size.sh after-install before-install
+# 安装后与清理后对比大小变化
+analyze_size.sh after-clean after-install
+```
+
+- **analyze_size.sh 检查结果，得到的日志结果如下**
+- **总结：似乎镜像无法优化了，已到绝处，无法逢生，在绝对的力量面前任何优化手段都毫无意义😮‍💨**
+```plaintext
+(py3.12.10) root@8ef4101d5648:/notebook# analyze_size.sh after-install before-install
+[信息] 快照 after-install 已存在，跳过采集。如需更新请使用 --force 参数。
+=== [after-install] 镜像体积快照 2025-04-24 15:37:07 ===
+
+/opt/jdk-25+9	297MB
+/root/.bashrc	3KB
+/root/.cache	1MB
+/root/.gitconfig	38b
+/root/.ipython	0b
+/root/.jbang	203MB
+/root/.jupyter	32b
+/root/.local	1KB
+/root/.m2	2MB
+/root/.profile	513b
+/root/.pyenv	3GB
+/root/.ssh	0b
+/usr/local/bin	2GB
+/usr/local/etc	0b
+/usr/local/games	0b
+/usr/local/include	46MB
+/usr/local/lib	866MB
+/usr/local/libexec	23KB
+/usr/local/man	9b
+/usr/local/sbin	0b
+/usr/local/share	155KB
+/usr/local/src	4GB
+/var/cache/adduser	0b
+/var/cache/apt	0b
+/var/cache/debconf	2MB
+/var/cache/ldconfig	11KB
+/var/cache/private	0b
+/var/lib/apt/extended_states	10KB
+/var/lib/apt/lists	35MB
+/var/lib/apt/mirrors	0b
+/var/lib/apt/periodic	0b
+
+🔍 [对比] before-install ➜ after-install 体积变化:
+
+/opt/jdk-25+9       	297MB ->(+297MB)
+/root/.bashrc       	3KB ->(+381b)
+/root/.cache        	1MB ->(+1MB)
+/root/.gitconfig    	38b ->(+38b)
+/root/.ipython      	0b ->(0b)
+/root/.jbang        	203MB ->(+203MB)
+/root/.jupyter      	32b ->(+32b)
+/root/.local        	1KB ->(+1KB)
+/root/.m2           	2MB ->(+2MB)
+/root/.profile      	513b ->(+381b)
+/root/.pyenv        	3GB ->(+3GB)
+/root/.ssh          	0b ->(0b)
+/usr/local/bin      	2GB ->(+2GB)
+/usr/local/etc      	0b ->(0b)
+/usr/local/games    	0b ->(0b)
+/usr/local/include  	46MB ->(+46MB)
+/usr/local/lib      	866MB ->(+866MB)
+/usr/local/libexec  	23KB ->(+23KB)
+/usr/local/man      	9b ->(0b)
+/usr/local/sbin     	0b ->(0b)
+/usr/local/share    	155KB ->(+155KB)
+/usr/local/src      	4GB ->(0b)
+/var/cache/adduser  	0b ->(0b)
+/var/cache/apt      	0b ->(0b)
+/var/cache/debconf  	2MB ->(+1MB)
+/var/cache/ldconfig 	11KB ->(+7KB)
+/var/cache/private  	0b ->(0b)
+/var/lib/apt/extended_states	10KB ->(+10KB)
+/var/lib/apt/lists  	35MB ->(+35MB)
+/var/lib/apt/mirrors	0b ->(0b)
+/var/lib/apt/periodic	0b ->(0b)
+```
+
+```plaintext
+(py3.12.10) root@8ef4101d5648:/notebook# analyze_size.sh after-clean after-install
+[信息] 快照 after-clean 已存在，跳过采集。如需更新请使用 --force 参数。
+=== [after-clean] 镜像体积快照 2025-04-24 15:38:16 ===
+
+/opt/jdk-25+9	297MB
+/root/.bashrc	3KB
+/root/.cache	0b
+/root/.gitconfig	38b
+/root/.ipython	0b
+/root/.jbang	203MB
+/root/.jupyter	32b
+/root/.local	1KB
+/root/.m2	2MB
+/root/.profile	513b
+/root/.pyenv	3GB
+/root/.ssh	0b
+/usr/local/bin	2GB
+/usr/local/etc	0b
+/usr/local/games	0b
+/usr/local/include	46MB
+/usr/local/lib	866MB
+/usr/local/libexec	23KB
+/usr/local/man	9b
+/usr/local/sbin	0b
+/usr/local/share	155KB
+/usr/local/src	0b
+/var/cache/adduser	0b
+/var/cache/apt	0b
+/var/cache/debconf	2MB
+/var/cache/ldconfig	11KB
+/var/cache/private	0b
+/var/lib/apt/extended_states	10KB
+/var/lib/apt/lists	0b
+/var/lib/apt/mirrors	0b
+/var/lib/apt/periodic	0b
+
+🔍 [对比] after-install ➜ after-clean 体积变化:
+
+/opt/jdk-25+9       	297MB ->(0b)
+/root/.bashrc       	3KB ->(0b)
+/root/.cache        	0b ->(-1MB)
+/root/.gitconfig    	38b ->(0b)
+/root/.ipython      	0b ->(0b)
+/root/.jbang        	203MB ->(0b)
+/root/.jupyter      	32b ->(0b)
+/root/.local        	1KB ->(0b)
+/root/.m2           	2MB ->(0b)
+/root/.profile      	513b ->(0b)
+/root/.pyenv        	3GB ->(0b)
+/root/.ssh          	0b ->(0b)
+/usr/local/bin      	2GB ->(-30KB)
+/usr/local/etc      	0b ->(0b)
+/usr/local/games    	0b ->(0b)
+/usr/local/include  	46MB ->(0b)
+/usr/local/lib      	866MB ->(0b)
+/usr/local/libexec  	23KB ->(0b)
+/usr/local/man      	9b ->(0b)
+/usr/local/sbin     	0b ->(0b)
+/usr/local/share    	155KB ->(0b)
+/usr/local/src      	0b ->(-4GB)
+/var/cache/adduser  	0b ->(0b)
+/var/cache/apt      	0b ->(0b)
+/var/cache/debconf  	2MB ->(0b)
+/var/cache/ldconfig 	11KB ->(0b)
+/var/cache/private  	0b ->(0b)
+/var/lib/apt/extended_states	10KB ->(0b)
+/var/lib/apt/lists  	0b ->(-35MB)
+/var/lib/apt/mirrors	0b ->(0b)
+/var/lib/apt/periodic	0b ->(0b)
+```
+
+
 ## 起因与内心：
   > 继[docker-arch-miniforge-jupyter](https://github.com/469138946ba5fa/docker-arch-miniforge-jupyter)项目的完成，想起曾有网友推荐`pyenv`编译安装`python`，额`TA`的名字忘记了，想不起来了
   >
@@ -1099,6 +1280,7 @@ docker stop test-amd64
 [github docker compose](https://github.com/docker/compose)  
 [docker proxy pull](https://docs.docker.com/engine/daemon/proxy/)  
 [jupyterlab](https://jupyterlab.readthedocs.io/en/latest/#)  
+[UNKNOWN MESSAGE TYPE: 'comm_open'](https://github.com/ipython/ipykernel/issues/64)  
 [pyenv](https://github.com/pyenv/pyenv)  
 [pyenv-installer](https://github.com/pyenv/pyenv-installer)  
 [shell environment for Pyenv](https://github.com/pyenv/pyenv#b-set-up-your-shell-environment-for-pyenv)  
@@ -1108,6 +1290,8 @@ docker stop test-amd64
 [cmake](https://cmake.org/)  
 [ninja](https://ninja-build.org/)  
 [clang](https://clang.llvm.org/get_started.html)  
+[clang api](https://cling.web.cern.ch/cling/doxygen/annotated.html)  
+[The C++ interpreter Cling](https://root.cern/manual/cling/#inspecting-objects)  
 [llvm](https://github.com/root-project/llvm-project/tree/cling-latest)  
 [cling](https://github.com/root-project/cling)  
 [ERROR in cling::CIFactory::createCI(): esource directory lib/clang/? not found!](https://github.com/root-project/cling/issues/536)  
