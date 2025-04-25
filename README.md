@@ -628,7 +628,7 @@ annotation-index.org.opencontainers.image.version='1.0.0',\
 annotation-index.org.opencontainers.image.authors='469138946ba5fa <af5ab649831964@gmail.com>',\
 annotation-index.org.opencontainers.image.source='https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter',\
 annotation-index.org.opencontainers.image.licenses='MIT' \
-  --provenance=false
+  --provenance=false \
   --push .
 #unset BUILDX_NO_DEFAULT_ATTESTATIONS
 
@@ -637,7 +637,7 @@ docker inspect ${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest
 # 查看 Docker 镜像清单（Manifest）。JSON 格式 Docker 镜像清单包含了有关镜像的元数据，包括层（layers）、架构（architecture）、操作系统（OS）、标签（tags）等信息
 docker manifest inspect ${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest
 # 启用调试模式后，命令会输出更多的详细信息，包括 Docker 连接的网络请求、API 调用等
-docker --debug manifest inspect ${DOCKER_DOMAIN}/${USERNAME}/${REPO}
+docker --debug manifest inspect ${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest
 
 # delete buildx cache dir
 ## 删除 docker buildx 所使用的大存储缓存目录，你也可以留着
