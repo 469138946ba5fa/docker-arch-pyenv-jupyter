@@ -648,15 +648,16 @@ rm -frv ${BUILDX_CACHE}
 mv -fv ${BUILDX_CACHE}-new ${BUILDX_CACHE}
 mkdir -pv  ${BUILDX_CACHE}-new
 
-# docker build clean
-## 清理所有停止的容器
-#docker container prune
-## 清理未使用的卷
-#docker volume prune
+
 ## 清理 buildx 构建缓存。以及清理构建新镜像所产生的 <none> 标签老镜像
 docker builder prune -af
 docker rmi $(docker images -qaf dangling=true)
 
+# docker build clean
+## 清理所有停止的容器
+#docker container prune -f
+## 清理未使用的卷
+#docker volume prune -af
 ## 清理未使用的镜像
 #docker image prune -af
 ## 清理不使用的网络
