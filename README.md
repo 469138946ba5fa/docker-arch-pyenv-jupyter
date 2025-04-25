@@ -536,34 +536,37 @@ docker-buildx inspect --bootstrap
 #  --no-cache 选项来避免使用过多的缓存，不要与 --cache-from 和 --cache-to 合用
 #  --cache-from 从 ${BUILDX_CACHE} 目录中加载缓存数据，加速构建。
 #  --cache-to 将新生成的缓存数据写入到 ${BUILDX_CACHE}-new 目录中。
-#  --label 添加镜像标签应该和 Dockerfile 中的 LABEL 等效，但是推送一直不显示 docker 镜像标签信息☹️
+#  --label 添加单镜像标签应该和 Dockerfile 中的 LABEL 等效
 #  --load 表示将构建完成的镜像加载到 Docker 本地镜像库中（对于跨平台构建，注意在某些情况下可能只能加载当前体系结构的镜像）。
 #  --push 表示将构建完成的镜像推送到 Docker 远端镜像库中 
 #  --output 导出器以下是type参数信息
 #    type=image 导出类型为镜像
-#    name=ghcr.io/469138946ba5fa/docker-arch-pyenv-jupyter:latest 镜像名
+#    name=ghcr.io/469138946ba5fa/docker-arch-test:latest 镜像名
 #    compression=zstd 压缩类型 zstd 也支持 gzip 和 estargz
 #    compression-level=22 设置 zstd 压缩级别为 22 ，gzip 和 estargz 的范围是 0-9 ， zstd 的范围是 0-22
 #    force-compression=true 强制重压缩
+#  最近发现对于多架构镜像需要额外在 --output 中配置多架构标签属性 --label 仅适用于单架构情况 https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#adding-a-description-to-multi-arch-images
+#  --output 
+#    annotation-index.org.opencontainers.image.description='' 多架构镜像注释标签
+#    annotation-index.org.opencontainers.image.title='' 多架构镜像标题标签
+#    annotation-index.org.opencontainers.image.version='' 多架构镜像版本标签
+#    annotation-index.org.opencontainers.image.authors='' 多架构镜像作者标签
+#    annotation-index.org.opencontainers.image.source='' 多架构镜像关联仓库标签
+#    annotation-index.org.opencontainers.image.licenses='' 多架构镜像协议标签
 #  最近发现云端镜像仓库有 unknown/unknown 未识别架构的问题，如下方案可以规避云端仓库 https://github.com/docker/buildx/issues/1964#issuecomment-1644634461
-#  --output 导出器 type=oci-mediatypes=false 关闭OCI索引，然而失败了☹️
-#  --provenance=false 设置为不生成来源信息，但禁用 provenance 信息，意味着你失去了有关构建过程的详细记录和签名。这对追踪镜像的安全性和来源可能会有一些影响。
+#  --output 导出器 type=oci-mediatypes=false 关闭OCI索引，然而失败了☹️，unknown/unknown 显示问题存在
+#  --provenance=false 设置为不生成来源信息，但禁用 provenance 信息，意味着你失去了有关构建过程的详细记录和签名。这对追踪镜像的安全性和来源可能会有一些影响，可以解决 unknown/unknown 显示问题
 #  参考 https://docs.docker.com/build/building/variables/#buildx_no_default_attestations
-#  export BUILDX_NO_DEFAULT_ATTESTATIONS=1 添加环境变量禁用来源证明应该和 --provenance=false 等效
+#  export BUILDX_NO_DEFAULT_ATTESTATIONS=1 添加环境变量禁用来源证明应该和 --provenance=false 等效，也可以解决 unknown/unknown 显示问题
+#  综上，我觉得 unknown/unknown 也可以接受，就这样吧
 
 # buildx build load
-## 单架构本地存储，比如 linux/arm64/v8 ，压缩，去除oci索引
-export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-docker-buildx build --platform linux/arm64/v8 \
+## 单架构本地存储，比如 linux/arm64/v8 ，压缩生成镜像
+docker buildx build \
+  --platform linux/arm64/v8 \
   --cache-from type=local,src=${BUILDX_CACHE} \
   --cache-to type=local,dest=${BUILDX_CACHE}-new,mode=max \
-  --label "org.opencontainers.image.description=Pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器." \
-  --label "org.opencontainers.image.title=Pyenv Jupyter" \
-  --label "org.opencontainers.image.version=1.0.0" \
-  --label "org.opencontainers.image.authors=469138946ba5fa <af5ab649831964@gmail.com>" \
-  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter/packages" \
-  --label "org.opencontainers.image.licenses=MIT" \
-  --output type=image,name=${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest,compression=zstd,compression-level=22,force-compression=true,oci-mediatypes=false \
+  --output type=image,name=${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest,compression=zstd,compression-level=22,force-compression=true \
   --tag ${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest \
   --load .
 
@@ -580,52 +583,54 @@ docker-compose stats
 # buildx build push
 ## 多架构上传仓库，比如 linux/arm64/v8,linux/amd64，去除oci索引，防止 unknown/unknown
 ## 正常构建镜像会很大，但是时间很短，上传会浪费大量带宽
-export BUILDX_NO_DEFAULT_ATTESTATIONS=1
+# buildx build push
+## 多架构上传仓库，比如 linux/arm64/v8,linux/amd64
+## 正常构建镜像会很大，但是时间很短，上传会浪费大量带宽
 docker buildx build \
   --platform linux/arm64/v8,linux/amd64 \
-  --label "org.opencontainers.image.description=pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器." \
-  --label "org.opencontainers.image.title=Pyenv Jupyter" \
-  --label "org.opencontainers.image.version=1.0.0" \
-  --label "org.opencontainers.image.authors=469138946ba5fa <af5ab649831964@gmail.com>" \
-  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter/packages" \
-  --label "org.opencontainers.image.licenses=MIT" \
   --cache-from type=local,src=${BUILDX_CACHE} \
   --cache-to type=local,dest=${BUILDX_CACHE}-new,mode=max \
-  --output type=image,name=${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest,oci-mediatypes=false \
+  --output type=image,name=${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest,\
+annotation-index.org.opencontainers.image.description='pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器，支持 amd64 和 arm64/v8 架构.',\
+annotation-index.org.opencontainers.image.title='Pyenv Jupyter',\
+annotation-index.org.opencontainers.image.version='1.0.0',\
+annotation-index.org.opencontainers.image.authors='469138946ba5fa <af5ab649831964@gmail.com>',\
+annotation-index.org.opencontainers.image.source='https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter',\
+annotation-index.org.opencontainers.image.licenses='MIT' \
   --push .
 
-## 或者多架构上传仓库，比如 linux/arm64/v8,linux/amd64，压缩并去除oci索引，防止 unknown/unknown
+## 或者多架构上传仓库，比如 linux/arm64/v8,linux/amd64，压缩
 ## 但压缩会意味着浪费更多的时间，但是也许会节省带宽，然而我并不清楚压缩和正常构建之间的关系
-export BUILDX_NO_DEFAULT_ATTESTATIONS=1
 docker buildx build \
   --platform linux/arm64/v8,linux/amd64 \
-  --label "org.opencontainers.image.description=pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器." \
-  --label "org.opencontainers.image.title=Pyenv Jupyter" \
-  --label "org.opencontainers.image.version=1.0.0" \
-  --label "org.opencontainers.image.authors=469138946ba5fa <af5ab649831964@gmail.com>" \
-  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter/packages" \
-  --label "org.opencontainers.image.licenses=MIT" \
   --cache-from type=local,src=${BUILDX_CACHE} \
   --cache-to type=local,dest=${BUILDX_CACHE}-new,mode=max \
-  --output type=image,name=${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest,compression=zstd,compression-level=22,force-compression=true,oci-mediatypes=false \
+  --output type=image,name=${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest,compression=zstd,compression-level=22,force-compression=true,\
+annotation-index.org.opencontainers.image.description='pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器，支持 amd64 和 arm64/v8 架构.',\
+annotation-index.org.opencontainers.image.title='Pyenv Jupyter',\
+annotation-index.org.opencontainers.image.version='1.0.0',\
+annotation-index.org.opencontainers.image.authors='469138946ba5fa <af5ab649831964@gmail.com>',\
+annotation-index.org.opencontainers.image.source='https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter',\
+annotation-index.org.opencontainers.image.licenses='MIT' \
   --push .
 
 ## 或者多架构上传仓库，比如 linux/arm64/v8,linux/amd64，压缩，不生成镜像来源，防止 unknown/unknown
-## 禁用 provenance 信息，意味着你失去了有关构建过程的详细记录和签名。这对追踪镜像的安全性和来源可能会有一些影响。
-export BUILDX_NO_DEFAULT_ATTESTATIONS=1
+## 使用 export BUILDX_NO_DEFAULT_ATTESTATIONS=1 或 --provenance=false 禁用来源信息，意味着你失去了有关构建过程的详细记录和签名。这对追踪镜像的安全性和来源可能会有一些影响。
+#export BUILDX_NO_DEFAULT_ATTESTATIONS=1
 docker buildx build \
   --platform linux/arm64/v8,linux/amd64 \
-  --label "org.opencontainers.image.description=pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器." \
-  --label "org.opencontainers.image.title=Pyenv Jupyter" \
-  --label "org.opencontainers.image.version=1.0.0" \
-  --label "org.opencontainers.image.authors=469138946ba5fa <af5ab649831964@gmail.com>" \
-  --label "org.opencontainers.image.source=https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter/packages" \
-  --label "org.opencontainers.image.licenses=MIT" \
   --cache-from type=local,src=${BUILDX_CACHE} \
   --cache-to type=local,dest=${BUILDX_CACHE}-new,mode=max \
-  --output type=image,name=${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest,compression=zstd,compression-level=22,force-compression=true \
+  --output type=image,name=${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest,compression=zstd,compression-level=22,force-compression=true,\
+annotation-index.org.opencontainers.image.description='pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器，支持 amd64 和 arm64/v8 架构.',\
+annotation-index.org.opencontainers.image.title='Pyenv Jupyter',\
+annotation-index.org.opencontainers.image.version='1.0.0',\
+annotation-index.org.opencontainers.image.authors='469138946ba5fa <af5ab649831964@gmail.com>',\
+annotation-index.org.opencontainers.image.source='https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter',\
+annotation-index.org.opencontainers.image.licenses='MIT' \
   --provenance=false
   --push .
+#unset BUILDX_NO_DEFAULT_ATTESTATIONS
 
 # 查看 Docker 镜像元数据信息
 docker inspect ${DOCKER_DOMAIN}/${USERNAME}/${REPO}:latest
@@ -1279,6 +1284,9 @@ analyze_size.sh after-clean after-install
 [github docker buildx](https://github.com/docker/buildx)  
 [github docker compose](https://github.com/docker/compose)  
 [docker proxy pull](https://docs.docker.com/engine/daemon/proxy/)  
+[adding-a-description-to-multi-arch-images](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#adding-a-description-to-multi-arch-images)  
+[oci unknown/unknown](https://github.com/docker/buildx/issues/1964#issuecomment-1644634461)  
+[buildx_no_default_attestations](https://docs.docker.com/build/building/variables/#buildx_no_default_attestations)  
 [jupyterlab](https://jupyterlab.readthedocs.io/en/latest/#)  
 [UNKNOWN MESSAGE TYPE: 'comm_open'](https://github.com/ipython/ipykernel/issues/64)  
 [pyenv](https://github.com/pyenv/pyenv)  

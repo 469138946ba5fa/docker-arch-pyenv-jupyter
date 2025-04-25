@@ -52,7 +52,7 @@ LABEL org.opencontainers.image.description="pyenv 安装 jupyter notebook 封装
       org.opencontainers.image.title="Pyenv Jupyter" \
       org.opencontainers.image.version="1.0.0" \
       org.opencontainers.image.authors="469138946ba5fa <af5ab649831964@gmail.com>" \
-      org.opencontainers.image.source="https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter/packages" \
+      org.opencontainers.image.source="https://github.com/469138946ba5fa/docker-arch-pyenv-jupyter" \
       org.opencontainers.image.licenses="MIT"
 
 # 设置工作目录 /notebook 仅用于 Notebook 数据挂载（保持干净）
