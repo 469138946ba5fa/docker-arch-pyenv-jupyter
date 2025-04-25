@@ -27,7 +27,7 @@ ARG PY_ENV=py${PY_VERSION}
 #    预编译包需要依赖官方源码的 sources/llvm-project.tar.gz 压缩包文件
 #    编译好的 llvm clang cling 预编译包 sources/llvm-clang-cling-build-<arch>.tar.gz ，其中 <arch> 是为了适配跨平台的系统架构：aarch64 或 x86_64（可由 uname -m 获取）
 #    我编译的路径是 /tmp/llvm/llvm /tmp/cling /tmp/build 这三个路径，所以安装解压方式也是直接解压到 /tmp 如果你想自定义需要修改 install_cling.sh 脚本中的这一部分
-ARG CLING_BUILD_MODE=prebuilt
+ARG CLING_BUILD_MODE=online
 # 编译时控制占用线程数，防止 docker 环境崩溃后系统大哭小大闹
 ARG CORENUM=2
 # install_jdk.sh 所需临时环境变量
