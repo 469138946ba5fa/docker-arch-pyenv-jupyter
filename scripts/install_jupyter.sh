@@ -24,7 +24,44 @@ eval "$(pyenv virtualenv-init -)"
 # 3.99.9 不存在，返回 fallback 稳定版
 #export PY_VERSION=3.12.10
 #export PY_ENV=py${PY_VERSION}
-#export PATH="${PYENV_ROOT}/versions/${PY_ENV}/bin:${PATH}"
+
+# pip 包安装带重试逻辑
+retry_pip_install_bulk() {
+  local retries=3
+  local sleep_seconds=2
+  local pkgs=("$@")
+  for ((i=1; i<=retries; i++)); do
+    log_info "Installing pip packages in bulk (attempt ${i}/${retries})"
+    if python -m pip install --no-cache-dir -v "${pkgs[@]}" --break-system-packages -i ${PIP_CHANNELS}; then
+      log_info "All pip packages installed successfully."
+      return 0
+    else
+      log_warning "Failed attempt ${i} to install pip packages, retrying after ${sleep_seconds}s..."
+      sleep $sleep_seconds
+    fi
+  done
+  log_error "Failed to install pip packages after ${retries} attempts."
+  exit 1
+}
+
+# pip 包重安装带重试逻辑
+retry_pip_force_reinstall_bulk() {
+  local retries=3
+  local sleep_seconds=2
+  local pkgs=("$@")
+  for ((i=1; i<=retries; i++)); do
+    log_info "Reinstalling pip packages in bulk (attempt ${i}/${retries})"
+    if python -m pip install --force-reinstall -v "${pkgs[@]}" --break-system-packages -i ${PIP_CHANNELS}; then
+      log_info "All pip packages reinstalling successfully."
+      return 0
+    else
+      log_warning "Failed attempt ${i} to reinstalling pip packages, retrying after ${sleep_seconds}s..."
+      sleep $sleep_seconds
+    fi
+  done
+  log_error "Failed to reinstalling pip packages after ${retries} attempts."
+  exit 1
+}
 
 # 获取pyenv版本
 # resolve_python_version	返回最新稳定版，如 3.13.3
@@ -97,7 +134,7 @@ pyenv version
 pyenv versions
 
 # 所需软件包列表
-packages=(
+pip_packages=(
   # jupyter 类别：构建完整的 Jupyter 环境及扩展
   jupyterlab                     # 下一代 Jupyter 用户界面，支持交互式笔记本和代码
   notebook                       # 经典 Jupyter Notebook 应用
@@ -124,14 +161,32 @@ packages=(
   httpx                          # 现代化的 HTTP 客户端，支持同步与异步请求
 )
 
-# 更新 pip 工具包
-python -m pip install --no-cache-dir -v --upgrade pip --break-system-packages  -i ${PIP_CHANNELS}
+# 备用功能，所需强制重装安装包
+pip_force_packages=(
+  setuptools                      # 生成 console_scripts entrypoints
+  wheel                           # 确保正确的 wheel 安装机制
+)
 
-# 循环安装各软件包
-for pkg in "${packages[@]}"; do
-  log_info "Installing package: ${pkg}"
-  python -m pip install --no-cache-dir -v "${pkg}" --break-system-packages  -i ${PIP_CHANNELS} || { log_error "Failed to install ${pkg}"; exit 1; }
-done
+# 更新 pip 工具包
+python -m pip install --no-cache-dir -v --upgrade pip --break-system-packages -i ${PIP_CHANNELS}
+
+# 一次性安装全部包
+log_info "Installing pip packages individually with retries..."
+retry_pip_install_bulk "${pip_packages[@]}"
+
+#log_info "Installing pip packages individually with retries..."
+#for pkg in "${pip_packages[@]}"; do
+#  retry_pip_install_bulk "$pkg"
+#done
+
+# 备用功能，补丁修复: 强制重新安装 setuptools, wheel，确保 jupyter 命令正确生成
+log_info "Reinstalling setuptools and wheel to fix entrypoints..."
+retry_pip_force_reinstall_bulk "${pip_force_packages[@]}"
+
+#log_info "Reinstalling setuptools and wheel to fix entrypoints..."
+#for pkg in "${pip_force_packages[@]}"; do
+#  retry_pip_force_reinstall_bulk "$pkg"
+#done
 
 # 将激活环境及 locale 配置写入配置文件中，保留长期有效
 echo "pyenv activate ${PY_ENV}" | tee -a /etc/environment "${HOME}/.profile"
@@ -166,4 +221,4 @@ esac
 
 log_info "Jupyter setup is complete."
 # jupyter --version
-jupyter --version
+python -m jupyter --version

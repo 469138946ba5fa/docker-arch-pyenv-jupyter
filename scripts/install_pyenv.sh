@@ -8,8 +8,6 @@ log_info "Starting pyenv environment setup..."
 # 初始化 pyenv 环境
 #export PYENV_ROOT="${HOME}/.pyenv"
 #[[ -d ${PYENV_ROOT}/bin ]] && export PATH="${PYENV_ROOT}/bin:${PATH}"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
 
 # 安装 pyenv
 curl https://pyenv.run | bash
@@ -65,4 +63,6 @@ eval "$(pyenv virtualenv-init -)"
 esac
 
 log_info "pyenv setup is complete."
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
 pyenv --version

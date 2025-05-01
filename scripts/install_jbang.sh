@@ -36,3 +36,4 @@ jbang trust add https://github.com/jupyter-java/
 jbang install-kernel@jupyter-java
 rm -rf "${HOME}/.jbang/currentjdk" "${HOME}/.jbang/cache/jdks"
 log_info "JBang setup completed."
+jupyter-kernelspec list

@@ -26,8 +26,8 @@ ARG PY_ENV=py${PY_VERSION}
 # prebuilt 本地资源预编译包直接安装，这个模式需要你提前准备好
 #    预编译包需要依赖官方源码的 sources/llvm-project.tar.gz 压缩包文件
 #    编译好的 llvm clang cling 预编译包 sources/llvm-clang-cling-build-<arch>.tar.gz ，其中 <arch> 是为了适配跨平台的系统架构：aarch64 或 x86_64（可由 uname -m 获取）
-#    我编译的路径是 /tmp/llvm/llvm /tmp/cling /tmp/build 这三个路径，所以安装解压方式也是直接解压到 /tmp 如果你想自定义需要修改 install_cling.sh 脚本中的这一部分
-ARG CLING_BUILD_MODE=online
+#    我编译的路径是 /tmp/llvm/llvm /tmp/cling /usr/local/share/cling/build 这三个路径，所以安装解压方式也是直接解压到 /tmp 和 /usr/local/share/cling/build 如果你想自定义需要修改 install_cling.sh 脚本中的这一部分
+ARG CLING_BUILD_MODE=prebuilt
 # 编译时控制占用线程数，防止 docker 环境崩溃后系统大哭小大闹
 ARG CORENUM=2
 # install_jdk.sh 所需临时环境变量
@@ -35,7 +35,9 @@ ARG JDK_VERSION=25
 # ENV 需要固化的临时环境
 ARG BUILD_HOME=/root
 ARG PYENV_ROOT="${BUILD_HOME}/.pyenv"
-ARG JAVA_HOME=${BUILD_HOME}/.jbang/currentjdk
+ARG JAVA_HOME="${BUILD_HOME}/.jbang/currentjdk"
+ARG CLASSPATH=".:${JAVA_HOME}/lib"
+ARG PATH="${PYENV_ROOT}/bin:${BUILD_HOME}/.jbang/bin:${JAVA_HOME}/bin:${PATH}"
 
 # 固化运行环境变量，全局构建和容器运行都可用，字符支持，安装目录，以及启动路径
 # init_system.sh 所需固化环境 LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 LANGUAGE=zh_CN.UTF-8 LC_CTYPE=zh_CN.UTF-8
@@ -43,9 +45,9 @@ ENV LANG=zh_CN.UTF-8 \
     LC_ALL=zh_CN.UTF-8 \
     LANGUAGE=zh_CN.UTF-8 \
     LC_CTYPE=zh_CN.UTF-8 \
-    CLASSPATH=.:${JAVA_HOME}/lib \
+    CLASSPATH=${CLASSPATH} \
     PY_ENV=${PY_ENV} \
-    PATH="${PYENV_ROOT}/bin:${PYENV_ROOT}/versions/${PY_ENV}/bin:${BUILD_HOME}/.jbang/bin:${JAVA_HOME}/bin:${PATH}"
+    PATH=${PATH}
 
 # 添加常用LABEL（根据需要修改）添加标题 版本 作者 代码仓库 镜像说明，方便优化
 LABEL org.opencontainers.image.description="pyenv 安装 jupyter notebook 封装特殊需求自用 python 测试容器." \
