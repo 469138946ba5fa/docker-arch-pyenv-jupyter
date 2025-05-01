@@ -1114,147 +1114,148 @@ analyze_size.sh after-clean after-install
 - **analyze_size.sh 检查结果，得到的日志结果如下**
 - **总结：似乎镜像无法优化了，已到绝处，无法逢生，在绝对的力量面前任何优化手段都毫无意义😮‍💨**
 ```plaintext
-(py3.12.10) root@8ef4101d5648:/notebook# analyze_size.sh after-install before-install
+root@d88ebc904abb:/notebook# analyze_size.sh after-install before-install
 [信息] 快照 after-install 已存在，跳过采集。如需更新请使用 --force 参数。
-=== [after-install] 镜像体积快照 2025-04-24 15:37:07 ===
+=== [after-install] 镜像体积快照 2025-05-01 13:50:36 ===
 
-/opt/jdk-25+9	297MB
-/root/.bashrc	3KB
-/root/.cache	1MB
-/root/.gitconfig	38b
-/root/.ipython	0b
-/root/.jbang	203MB
-/root/.jupyter	32b
-/root/.local	1KB
-/root/.m2	2MB
-/root/.profile	513b
-/root/.pyenv	3GB
-/root/.ssh	0b
-/usr/local/bin	2GB
-/usr/local/etc	0b
-/usr/local/games	0b
-/usr/local/include	46MB
-/usr/local/lib	866MB
-/usr/local/libexec	23KB
-/usr/local/man	9b
-/usr/local/sbin	0b
-/usr/local/share	155KB
-/usr/local/src	4GB
-/var/cache/adduser	0b
-/var/cache/apt	0b
-/var/cache/debconf	2MB
-/var/cache/ldconfig	11KB
-/var/cache/private	0b
-/var/lib/apt/extended_states	10KB
-/var/lib/apt/lists	35MB
-/var/lib/apt/mirrors	0b
-/var/lib/apt/periodic	0b
+/opt/jdk-25+9   297MB
+/root/.bashrc   3KB
+/root/.cache    2MB
+/root/.gitconfig        38b
+/root/.ipython  0b
+/root/.jbang    203MB
+/root/.jupyter  32b
+/root/.local    1KB
+/root/.m2       2MB
+/root/.profile  513b
+/root/.pyenv    3GB
+/root/.ssh      0b
+/usr/local/bin  2GB
+/usr/local/etc  0b
+/usr/local/games        0b
+/usr/local/include      46MB
+/usr/local/lib  866MB
+/usr/local/libexec      23KB
+/usr/local/man  9b
+/usr/local/sbin 0b
+/usr/local/share        155KB
+/usr/local/src  4GB
+/var/cache/adduser      0b
+/var/cache/apt  0b
+/var/cache/debconf      2MB
+/var/cache/ldconfig     11KB
+/var/cache/private      0b
+/var/lib/apt/extended_states    10KB
+/var/lib/apt/lists      35MB
+/var/lib/apt/mirrors    0b
+/var/lib/apt/periodic   0b
 
 🔍 [对比] before-install ➜ after-install 体积变化:
 
-/opt/jdk-25+9       	297MB ->(+297MB)
-/root/.bashrc       	3KB ->(+381b)
-/root/.cache        	1MB ->(+1MB)
-/root/.gitconfig    	38b ->(+38b)
-/root/.ipython      	0b ->(0b)
-/root/.jbang        	203MB ->(+203MB)
-/root/.jupyter      	32b ->(+32b)
-/root/.local        	1KB ->(+1KB)
-/root/.m2           	2MB ->(+2MB)
-/root/.profile      	513b ->(+381b)
-/root/.pyenv        	3GB ->(+3GB)
-/root/.ssh          	0b ->(0b)
-/usr/local/bin      	2GB ->(+2GB)
-/usr/local/etc      	0b ->(0b)
-/usr/local/games    	0b ->(0b)
-/usr/local/include  	46MB ->(+46MB)
-/usr/local/lib      	866MB ->(+866MB)
-/usr/local/libexec  	23KB ->(+23KB)
-/usr/local/man      	9b ->(0b)
-/usr/local/sbin     	0b ->(0b)
-/usr/local/share    	155KB ->(+155KB)
-/usr/local/src      	4GB ->(0b)
-/var/cache/adduser  	0b ->(0b)
-/var/cache/apt      	0b ->(0b)
-/var/cache/debconf  	2MB ->(+1MB)
-/var/cache/ldconfig 	11KB ->(+7KB)
-/var/cache/private  	0b ->(0b)
-/var/lib/apt/extended_states	10KB ->(+10KB)
-/var/lib/apt/lists  	35MB ->(+35MB)
-/var/lib/apt/mirrors	0b ->(0b)
-/var/lib/apt/periodic	0b ->(0b)
+/opt/jdk-25+9           297MB ->(+297MB)
+/root/.bashrc           3KB ->(+381b)
+/root/.cache            2MB ->(+2MB)
+/root/.gitconfig        38b ->(+38b)
+/root/.ipython          0b ->(0b)
+/root/.jbang            203MB ->(+203MB)
+/root/.jupyter          32b ->(+32b)
+/root/.local            1KB ->(+1KB)
+/root/.m2               2MB ->(+2MB)
+/root/.profile          513b ->(+381b)
+/root/.pyenv            3GB ->(+3GB)
+/root/.ssh              0b ->(0b)
+/usr/local/bin          2GB ->(+2GB)
+/usr/local/etc          0b ->(0b)
+/usr/local/games        0b ->(0b)
+/usr/local/include      46MB ->(+46MB)
+/usr/local/lib          866MB ->(+866MB)
+/usr/local/libexec      23KB ->(+23KB)
+/usr/local/man          9b ->(0b)
+/usr/local/sbin         0b ->(0b)
+/usr/local/share        155KB ->(+155KB)
+/usr/local/src          4GB ->(0b)
+/var/cache/adduser      0b ->(0b)
+/var/cache/apt          0b ->(0b)
+/var/cache/debconf      2MB ->(+1MB)
+/var/cache/ldconfig     11KB ->(+7KB)
+/var/cache/private      0b ->(0b)
+/var/lib/apt/extended_states    10KB ->(+10KB)
+/var/lib/apt/lists      35MB ->(+35MB)
+/var/lib/apt/mirrors    0b ->(0b)
+/var/lib/apt/periodic   0b ->(0b)
 ```
 
 ```plaintext
-(py3.12.10) root@8ef4101d5648:/notebook# analyze_size.sh after-clean after-install
-[信息] 快照 after-clean 已存在，跳过采集。如需更新请使用 --force 参数。
-=== [after-clean] 镜像体积快照 2025-04-24 15:38:16 ===
 
-/opt/jdk-25+9	297MB
-/root/.bashrc	3KB
-/root/.cache	0b
-/root/.gitconfig	38b
-/root/.ipython	0b
-/root/.jbang	203MB
-/root/.jupyter	32b
-/root/.local	1KB
-/root/.m2	2MB
-/root/.profile	513b
-/root/.pyenv	3GB
-/root/.ssh	0b
-/usr/local/bin	2GB
-/usr/local/etc	0b
-/usr/local/games	0b
-/usr/local/include	46MB
-/usr/local/lib	866MB
-/usr/local/libexec	23KB
-/usr/local/man	9b
-/usr/local/sbin	0b
-/usr/local/share	155KB
-/usr/local/src	0b
-/var/cache/adduser	0b
-/var/cache/apt	0b
-/var/cache/debconf	2MB
-/var/cache/ldconfig	11KB
-/var/cache/private	0b
-/var/lib/apt/extended_states	10KB
-/var/lib/apt/lists	0b
-/var/lib/apt/mirrors	0b
-/var/lib/apt/periodic	0b
+root@d88ebc904abb:/notebook# analyze_size.sh after-clean after-install
+[信息] 快照 after-clean 已存在，跳过采集。如需更新请使用 --force 参数。
+=== [after-clean] 镜像体积快照 2025-05-01 13:51:23 ===
+
+/opt/jdk-25+9   297MB
+/root/.bashrc   3KB
+/root/.cache    0b
+/root/.gitconfig        38b
+/root/.ipython  0b
+/root/.jbang    203MB
+/root/.jupyter  32b
+/root/.local    1KB
+/root/.m2       2MB
+/root/.profile  513b
+/root/.pyenv    3GB
+/root/.ssh      0b
+/usr/local/bin  2GB
+/usr/local/etc  0b
+/usr/local/games        0b
+/usr/local/include      46MB
+/usr/local/lib  866MB
+/usr/local/libexec      23KB
+/usr/local/man  9b
+/usr/local/sbin 0b
+/usr/local/share        155KB
+/usr/local/src  0b
+/var/cache/adduser      0b
+/var/cache/apt  0b
+/var/cache/debconf      2MB
+/var/cache/ldconfig     11KB
+/var/cache/private      0b
+/var/lib/apt/extended_states    10KB
+/var/lib/apt/lists      0b
+/var/lib/apt/mirrors    0b
+/var/lib/apt/periodic   0b
 
 🔍 [对比] after-install ➜ after-clean 体积变化:
 
-/opt/jdk-25+9       	297MB ->(0b)
-/root/.bashrc       	3KB ->(0b)
-/root/.cache        	0b ->(-1MB)
-/root/.gitconfig    	38b ->(0b)
-/root/.ipython      	0b ->(0b)
-/root/.jbang        	203MB ->(0b)
-/root/.jupyter      	32b ->(0b)
-/root/.local        	1KB ->(0b)
-/root/.m2           	2MB ->(0b)
-/root/.profile      	513b ->(0b)
-/root/.pyenv        	3GB ->(0b)
-/root/.ssh          	0b ->(0b)
-/usr/local/bin      	2GB ->(-30KB)
-/usr/local/etc      	0b ->(0b)
-/usr/local/games    	0b ->(0b)
-/usr/local/include  	46MB ->(0b)
-/usr/local/lib      	866MB ->(0b)
-/usr/local/libexec  	23KB ->(0b)
-/usr/local/man      	9b ->(0b)
-/usr/local/sbin     	0b ->(0b)
-/usr/local/share    	155KB ->(0b)
-/usr/local/src      	0b ->(-4GB)
-/var/cache/adduser  	0b ->(0b)
-/var/cache/apt      	0b ->(0b)
-/var/cache/debconf  	2MB ->(0b)
-/var/cache/ldconfig 	11KB ->(0b)
-/var/cache/private  	0b ->(0b)
-/var/lib/apt/extended_states	10KB ->(0b)
-/var/lib/apt/lists  	0b ->(-35MB)
-/var/lib/apt/mirrors	0b ->(0b)
-/var/lib/apt/periodic	0b ->(0b)
+/opt/jdk-25+9           297MB ->(0b)
+/root/.bashrc           3KB ->(0b)
+/root/.cache            0b ->(-2MB)
+/root/.gitconfig        38b ->(0b)
+/root/.ipython          0b ->(0b)
+/root/.jbang            203MB ->(0b)
+/root/.jupyter          32b ->(0b)
+/root/.local            1KB ->(0b)
+/root/.m2               2MB ->(0b)
+/root/.profile          513b ->(0b)
+/root/.pyenv            3GB ->(0b)
+/root/.ssh              0b ->(0b)
+/usr/local/bin          2GB ->(-33KB)
+/usr/local/etc          0b ->(0b)
+/usr/local/games        0b ->(0b)
+/usr/local/include      46MB ->(0b)
+/usr/local/lib          866MB ->(0b)
+/usr/local/libexec      23KB ->(0b)
+/usr/local/man          9b ->(0b)
+/usr/local/sbin         0b ->(0b)
+/usr/local/share        155KB ->(0b)
+/usr/local/src          0b ->(-4GB)
+/var/cache/adduser      0b ->(0b)
+/var/cache/apt          0b ->(0b)
+/var/cache/debconf      2MB ->(0b)
+/var/cache/ldconfig     11KB ->(0b)
+/var/cache/private      0b ->(0b)
+/var/lib/apt/extended_states    10KB ->(0b)
+/var/lib/apt/lists      0b ->(-35MB)
+/var/lib/apt/mirrors    0b ->(0b)
+/var/lib/apt/periodic   0b ->(0b)
 ```
 
 
